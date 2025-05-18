@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+    environment {
+        KUBECTL = "/usr/local/bin/kubectl"
+    }
+    stages {
+        stage('Start Minikube') {
+            steps {
+                sh '/usr/local/bin/minikube_custom start'
+            }
+        }
+        stage('Create Pod') {
+            steps {
+                sh '${KUBECTL} run test-pod --image=python:3.12 --restart=Never -- sleep 600'
+                sh '${KUBECTL} wait --for=condition=Ready pod/test-pod --timeout=60s'
+            }
+        }
+        stage('Install Tools in Pod') {
+            steps {
+                sh '${KUBECTL} exec test-pod -- bash -c "apt update && apt install -y git python3-pip"'
+            }
+        }
+        stage('Clone GitHub Repo') {
+            steps {
+                sh '${KUBECTL} exec test-pod -- git clone https://github.com/MusheerRepo/pyTest'
+            }
+        }
+        stage('Run Pytest') {
+            steps {
+                sh '${KUBECTL} exec test-pod -- bash -c "cd pyTest && ls && pip install -r \"requirements.txt\" && pytest -n auto -v"'
+            }
+        }
+    }
+    post {
+        always {
+            echo 'Cleaning up...'
+            sh '${KUBECTL} delete pod test-pod || true'
+        }
+    }
+}
