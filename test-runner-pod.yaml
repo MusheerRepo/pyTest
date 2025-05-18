@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+    name: test-runner
+spec:
+    restartPolicy: Never
+    containers:
+        - name: pytest
+          image: musheer121/pytest-runner
+          imagePullPolicy: Always
