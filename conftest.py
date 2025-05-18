@@ -5,3 +5,5 @@ def pytest_addoption(parser):
         default="allure-results",
         help="Directory to store Allure results"
     )
+
+#changes
