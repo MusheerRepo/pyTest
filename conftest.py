@@ -7,4 +7,4 @@ def pytest_addoption(parser):
     )
 
 def func1():
-    return 1
+    return 10
