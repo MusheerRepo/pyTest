@@ -6,5 +6,5 @@ def pytest_addoption(parser):
         help="Directory to store Allure results"
     )
 
-#changes again again again
-
+def func1():
+    return 1
