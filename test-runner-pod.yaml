@@ -6,5 +6,5 @@ spec:
     restartPolicy: Never
     containers:
         - name: pytest
-          image: musheer121/pytest-runner
+          image: musheer121/pytest-runner:latest
           imagePullPolicy: Always
