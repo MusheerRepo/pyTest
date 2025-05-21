@@ -9,24 +9,19 @@ RUN apt-get update && \
 # Set Allure version
 ENV ALLURE_VERSION=2.27.0
 
-# Install Allure
-RUN mkdir -p /opt && \
-    curl -sL "https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip" -o allure.zip && \
-    unzip allure.zip && \
-    mv allure-${ALLURE_VERSION} /opt/ && \
+# Install Allure CLI
+RUN curl -sL "https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip" -o /tmp/allure.zip && \
+    unzip /tmp/allure.zip -d /opt && \
     ln -s /opt/allure-${ALLURE_VERSION}/bin/allure /usr/bin/allure && \
-    rm allure.zip
+    rm /tmp/allure.zip
 
 # Set environment variable for Allure
 ENV PATH="/opt/allure-${ALLURE_VERSION}/bin:${PATH}"
 
 # Copy and install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt /tmp/
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
 # Copy app code and set workdir
 COPY . /app
 WORKDIR /app
-
-# Default command
-CMD ["pytest"]
