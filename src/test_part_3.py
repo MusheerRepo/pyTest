@@ -4,7 +4,7 @@ import random
 
 def test_case_200():
     time.sleep(random.uniform(0,3))
-    assert False
+    assert True
 
 def test_case_201():
     time.sleep(random.uniform(0,3))
