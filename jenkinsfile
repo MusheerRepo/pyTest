@@ -23,10 +23,6 @@ pipeline {
         }
     }
     post {
-        success {
-            build job: 'Musheer', wait: false
-        }
-
         always {
             echo 'Cleaning up.....'
             sh '${KUBECTL} delete pod test-pod || true'

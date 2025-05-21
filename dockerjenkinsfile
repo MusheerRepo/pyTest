@@ -32,4 +32,16 @@ pipeline {
             }
         }
     }
+
+    post {
+        success {
+            build job: 'Musheer', wait: false
+        }
+        
+        always {
+            script {
+                docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").remove()
+            }
+        }
+    }
 }
