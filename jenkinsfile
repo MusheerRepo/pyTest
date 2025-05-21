@@ -2,6 +2,8 @@ pipeline {
     agent any
     environment {
         KUBECTL = "/usr/local/bin/kubectl"
+        ALLURE_RESULTS_DIR = "allure-results"
+        ALLURE_REPORT_DIR = "allure-report"
     }
     stages {
         stage('Start Minikube') {
@@ -9,6 +11,7 @@ pipeline {
                 sh '/usr/local/bin/minikube_custom start'
             }
         }
+
         stage('Create Pod') {
             steps {
                 sh '${KUBECTL} run test-pod --image=musheer121/pytest-runner --restart=Never -- sleep 600'
@@ -16,16 +19,43 @@ pipeline {
             }
         }
 
-        stage('Run Pytest') {
+        stage('Run Pytest + Generate Allure Results') {
             steps {
-                sh '${KUBECTL} exec test-pod -- bash -c "pytest -n auto -v"'
+                // Create a directory to collect logs/results from pod
+                sh 'mkdir -p ${ALLURE_RESULTS_DIR}'
+
+                // Run pytest with Allure inside the pod
+                sh '${KUBECTL} exec test-pod -- bash -c "pytest -n auto -v --alluredir=/tmp/${ALLURE_RESULTS_DIR}"'
+
+                // Copy allure results and log from pod to Jenkins workspace
+                sh '${KUBECTL} cp test-pod:/tmp/${ALLURE_RESULTS_DIR} ./'
+                // sh '${KUBECTL} cp test-pod:/tmp/log1.log ./log1.log'
+            }
+        }
+
+        stage('Generate Allure Report') {
+            steps {
+                sh 'allure generate ${ALLURE_RESULTS_DIR} -o ${ALLURE_REPORT_DIR} --clean'
+            }
+        }
+
+        stage('Serve Allure Report (optional)') {
+            steps {
+                // This step is optional; it hosts the report on a port
+                sh 'nohup allure open ${ALLURE_REPORT_DIR} --port 8888 > /dev/null 2>&1 &'
             }
         }
     }
+
     post {
         always {
-            echo 'Cleaning up.....'
+            echo 'Cleaning up...'
             sh '${KUBECTL} delete pod test-pod || true'
+
+            // Archive Allure results and logs for the build
+            //archiveArtifacts artifacts: 'log1.log', allowEmptyArchive: true
+            archiveArtifacts artifacts: '${ALLURE_RESULTS_DIR}/**', allowEmptyArchive: true
+            archiveArtifacts artifacts: '${ALLURE_REPORT_DIR}/**', allowEmptyArchive: true
         }
     }
 }
