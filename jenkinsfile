@@ -18,7 +18,7 @@ pipeline {
 
         stage('Run Pytest') {
             steps {
-                sh '${KUBECTL} exec test-pod -- bash -c "cd pyTest && pytest -n auto -v"'
+                sh '${KUBECTL} exec test-pod -- bash -c "pytest -n auto -v"'
             }
         }
     }
