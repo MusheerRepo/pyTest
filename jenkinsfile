@@ -24,7 +24,7 @@ pipeline {
     }
     post {
         success {
-            build job: 'Job-2-Run-Tests', wait: false
+            build job: 'Musheer', wait: false
         }
 
         always {
