@@ -12,11 +12,15 @@ ENV ALLURE_VERSION=2.27.0
 # Install Allure CLI
 RUN curl -sL "https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip" -o /tmp/allure.zip && \
     unzip /tmp/allure.zip -d /opt && \
-    ln -s /opt/allure-${ALLURE_VERSION}/bin/allure /usr/bin/allure && \
+    mv /opt/allure-${ALLURE_VERSION} /opt/allure && \
+    ln -s /opt/allure/bin/allure /usr/bin/allure && \
     rm /tmp/allure.zip
 
 # Set environment variable for Allure
-ENV PATH="/opt/allure-${ALLURE_VERSION}/bin:${PATH}"
+ENV PATH="/opt/allure/bin:${PATH}"
+
+# Verify Allure installation
+RUN allure --version
 
 # Copy and install Python dependencies
 COPY requirements.txt /tmp/
