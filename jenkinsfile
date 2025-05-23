@@ -32,25 +32,16 @@ pipeline {
                 // sh '${KUBECTL} cp test-pod:/tmp/log1.log ./log1.log'
             }
         }
+    }
 
-        stage('Generate Allure Report') {
-            always {
+    post {
+        always {
                     allure includeProperties:
                      false,
                      jdk: '',
                      results: [[path: 'build/allure-results']]
                 }
-        }
 
-        stage('Serve Allure Report (optional)') {
-            steps {
-                // This step is optional; it hosts the report on a port
-                sh 'nohup allure open ${ALLURE_REPORT_DIR} --port 8888 > /dev/null 2>&1 &'
-            }
-        }
-    }
-
-    post {
         always {
             echo 'Cleaning up...'
             sh '${KUBECTL} delete pod test-pod || true'
